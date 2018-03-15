@@ -12,8 +12,8 @@ int main() {
 		if (mode == 0) {
 			while(1) {
 				card* c = deck->get_next_card();
-				int result = ui->present_card(c);
-				if (result == -1) {
+				performance result = ui->present_card(c);
+				if (result == unf) {
 					break;
 				}
 
