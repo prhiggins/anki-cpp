@@ -1,6 +1,5 @@
-#include <ncurses.h>
 #include "../Modal/card.h"
-
+#include<ncurses.h>
 class UI {
 public:
 	UI();
