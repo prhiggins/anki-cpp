@@ -11,13 +11,13 @@ int main() {
 		int mode = ui->present_menu();
 		if (mode == 0) {
 			while(1) {
-				card* c = deck->get_next_card();
+				card* c = deck.get_next_card();
 				performance result = ui->present_card(c);
 				if (result == unf) {
 					break;
 				}
 
-				deck->study((*c), result);
+				deck.study((*c), result);
 			}
 		}
 		else if (mode == 1) {
