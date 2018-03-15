@@ -12,13 +12,6 @@ UI::UI() {
 	deck = new jobPool(jobPool::get_credential().at(0),  jobPool::get_credential().at(1));
 }
 
-void UI::present_cards() {
-	while(1) {
-		card* c = deck->get_next_card()
-		deck->study(c, present_card(c));
-
-	}
-}
 int UI::present_card(card* c) {
 	const char* card_front =  c->front().c_str();
 	int text_start_line = LINES / 3;
