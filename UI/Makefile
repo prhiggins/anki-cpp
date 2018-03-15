@@ -1,6 +1,6 @@
 CXX = g++
 CFLAGS = -std=c++14 -g -Wall
 
-%.o: %.cpp %.hpp
+ui.o: ui.cpp ui.hpp
 	$(CXX) -c $(CFLAGS) $<
 
