@@ -5,7 +5,7 @@ class UI {
 public:
 	UI();
 	int present_menu();
-	int present_cards();
+	void present_cards();
 	int present_card(card* c);
 	~UI();
 private:
