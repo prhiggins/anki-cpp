@@ -3,6 +3,13 @@
 #include "./UI/ui.hpp"
 
 int main() {
+	if (!jobPool::is_logined()) {
+		cout << "Enter a username and password";
+		string uname, pword;
+		cin >> uname >> pword;
+		if(jobPool::set_user_credentials_to(uname, pword))
+            cout << "Entered a user's credentials\n";
+	}
 	// "activates" the ui - clears the screen and captures input
 	UI* ui = new UI();
 	jobPool deck(jobPool::get_credential().at(0), jobPool::get_credential().at(1));
