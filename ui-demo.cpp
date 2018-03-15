@@ -5,7 +5,7 @@
 int main() {
 	// "activates" the ui - clears the screen and captures input
 	UI* ui = new UI();
-	jobPool* deck = new jobPool(jobPool().get_credential().at(0), jobPool().get_credential.at(1));
+	jobPool* deck = new jobPool(jobPool::get_credential().at(0), jobPool::get_credential().at(1));
 
 	while(1) {
 		int mode = ui->present_menu();
@@ -17,7 +17,7 @@ int main() {
 					break;
 				}
 
-				deck->study(*card, result);
+				deck->study(*(card), result);
 			}
 		}
 		else if (mode == 1) {
