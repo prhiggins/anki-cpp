@@ -17,7 +17,7 @@ int main() {
 					break;
 				}
 
-				deck->study(*(card), result);
+				deck->study((*card), result);
 			}
 		}
 		else if (mode == 1) {
