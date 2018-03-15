@@ -9,7 +9,6 @@ UI::UI() {
 	raw();
 	
 	refresh();
-	deck = new jobPool(jobPool::get_credential().at(0),  jobPool::get_credential().at(1));
 }
 
 int UI::present_card(card* c) {

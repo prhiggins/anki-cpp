@@ -16,7 +16,7 @@ main.o: main.cpp
 main.exe: Modal/card.o Service/studyService.o Service/config.o Controller/jobPool.o main.o UI/ui.o
 	g++ -std=c++11 -g -o $@ $^ -Wall $(pkg-config --cflags --libs libmongocxx) -Wl,-rpath,/usr/local/lib $(NCURSES_LFLAG) $(MongoDB_LFLAG)
 
-SUBDIR_ROOTS := Modal Service Controller
+SUBDIR_ROOTS := Modal Service Controller UI
 DIRS := . $(shell find $(SUBDIR_ROOTS) -type d)
 GARBAGE_PATTERNS := *.o *.exe
 GARBAGE := $(foreach DIR,$(DIRS),$(addprefix $(DIR)/,$(GARBAGE_PATTERNS)))

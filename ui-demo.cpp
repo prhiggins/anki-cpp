@@ -1,10 +1,11 @@
-#include "ui.hpp"
-#include "../Modal/card.h"
+#include "./UI/ui.hpp"
+#include "./Controller/jobPool.h"
+#include "./Modal/card.h"
 
 int main() {
 	// "activates" the ui - clears the screen and captures input
 	UI* ui = new UI();
-	jobPool* deck = new jobPool(jobPool.get_credential().at(0), jobPool.get_credential.at(1));
+	jobPool* deck = new jobPool(jobPool().get_credential().at(0), jobPool().get_credential.at(1));
 
 	while(1) {
 		int mode = ui->present_menu();
