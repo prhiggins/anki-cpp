@@ -1,6 +1,6 @@
-#include "./UI/ui.hpp"
 #include "./Controller/jobPool.h"
 #include "./Modal/card.h"
+#include "./UI/ui.hpp"
 
 int main() {
 	// "activates" the ui - clears the screen and captures input
