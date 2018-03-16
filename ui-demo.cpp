@@ -17,11 +17,11 @@ int main() {
 		if (mode == 0) {
 			while(1) {
 				card* c = deck.get_next_card();
-				if (!c) {
+				if (c == nullptr) {
 					break;
 				}
 
-				performance result = ui->present_card(c);
+				performance result = ui->present_card(*c);
 
 				if (result == unf) {
 					break;

@@ -11,14 +11,17 @@ UI::UI() {
 	refresh();
 }
 
-performance UI::present_card(card* c) {
+performance UI::present_card(card c) {
 	curs_set(0);
 	clear();
 	draw_skeleton();
+	stringstream ss;
+	ss << c;
+	string front = c.front() + ss.str();
 
-	const char* card_front =  c->front().c_str();
+	const char* card_front =  front.c_str();
 	int text_start_line = LINES / 3;
-	int text_start_col = COLS / 2 - (c->front().length() / 2);
+	int text_start_col = COLS / 2 - (c.front().length() / 2);
 	
 	draw_skeleton();
 	mvprintw(text_start_line, text_start_col, card_front);	
@@ -42,8 +45,8 @@ performance UI::present_card(card* c) {
 
 	draw_skeleton();
 
-	const char* card_back = c->back().c_str();
-	mvprintw(text_start_line, COLS / 2 - (c->back().length() / 2), card_back);	
+	const char* card_back = c.back().c_str();
+	mvprintw(text_start_line, COLS / 2 - (c.back().length() / 2), card_back);	
 	string options[4] = {"Bad","Hard","Good","Easy"};
 	//mvprintw(LINES - 2, (COLS / 2) - 18, "1: Bad | 2: Hard | 3: Good | 4: Easy");
 	refresh();
@@ -93,11 +96,11 @@ performance UI::present_card(card* c) {
 	}
 
 	else if (selected == 2) {
-		perf = good;
+		perf = easy;
 	}
 
 	else if (selected == 3) {
-		perf = easy;
+		perf = good;
 	}
 
 	return perf;
@@ -146,41 +149,77 @@ int UI::present_menu() {
 void UI::create_card(string &front, string &back) {	
 	clear();
 	draw_skeleton();
-	mvprintw(LINES / 2, COLS / 2 - 11, "Front Side:");
+	// mvprintw(LINES / 2, COLS / 2 - 11, "Front Side:");
 	curs_set(1);
-	refresh();
+	
 
 	front = "";
 	back = "";
-	while (1) {
-		echo();
-		int c = getch();
-		if (c != 10) {
-			front += char(c);
-		}
+	
 
-		else {
-			noecho();
-			break;
-		}
-	}
+	char ch;
+   
+    while (1) // Assumes (default) position of cursor is at printing location.
+    {
+    	refresh();
+    	mvprintw(LINES / 2, COLS / 2 - 11, "Front Side: %s", front.c_str());
+        ch = getch();
+        if (ch == '\n') // Keeps buffering input until end of line. Check done after acquiring input char (thus if inside while) to prevent it from being discarded automatically.
+        {
+                break;
+        }
+        if (ch == '\a' || ch == '\b') // Ensure normal attempts at backspace are caught.
+        {
+                if (!front.empty()) // pop_back will cause a crash when attempting to remove stuff from an empty vector.
+                {
+                        front.pop_back(); // Removes previously entered character from buffered input.
+                        addch('\b'); // Actual backspacing from user's perspective in these 5 lines.
+                        addch(' ');
+                        int y, x;
+                        getyx (stdscr, y, x);
+                        move (y, x-1); // More than one line of user input deemed unlikely/useless.
+                }
+        }
+        else
+        {
+                front.push_back(ch);
+                addch(ch);
+        }
+    }
+	
 	clear();
 	draw_skeleton();
-	mvprintw(LINES / 2, COLS / 2 - 10, "Back Side:");
+	// mvprintw(LINES / 2, COLS / 2 - 10, "Back Side:");
 	refresh();
-
-	while (1) {
-		echo();
-		int c = getch();
-		if (c != 10) {
-			back += char(c);
-		}
-
-		else {
-			noecho();
-			break;
-		}
-	}
+	while (1) // Assumes (default) position of cursor is at printing location.
+    {
+    	refresh();
+    	mvprintw(LINES / 2, COLS / 2 - 10, "Back Side: %s", back.c_str());
+        ch = getch();
+        if (ch == '\n') // Keeps buffering input until end of line. Check done after acquiring input char (thus if inside while) to prevent it from being discarded automatically.
+        {
+                break;
+        }
+        if (ch == '\a' || ch == '\b') // Ensure normal attempts at backspace are caught.
+        {
+                if (!back.empty()) // pop_back will cause a crash when attempting to remove stuff from an empty vector.
+                {
+                        back.pop_back(); // Removes previously entered character from buffered input.
+                        addch('\b'); // Actual backspacing from user's perspective in these 5 lines.
+                        addch(' ');
+                        int y, x;
+                        getyx (stdscr, y, x);
+                        move (y, x-1); // More than one line of user input deemed unlikely/useless.
+                }
+        }
+        else
+        {
+                back.push_back(ch);
+                addch(ch);
+        }
+    }
+	
+	
 }
 
 void UI::draw_skeleton() {
