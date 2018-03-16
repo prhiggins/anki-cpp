@@ -2,7 +2,7 @@ MongoDB_IFLAG = -I/usr/local/include/mongocxx/v_noabi -I/usr/local/include/libmo
 MongoDB_LFLAG = -L/usr/local/lib -lmongocxx -lbsoncxx
 NCURSES_LFLAG = -lncurses
 
-all: dependency main.exe
+all: dependency study.exe
 
 dependency:
 	+$(MAKE) -C Modal/
