@@ -16,10 +16,10 @@ main.o: main.cpp
 ui-demo.o: ui-demo.cpp
 	g++ -c -std=c++11 -g $^ $(NCURSES_LFLAG) $(pkg-config --cflags --libs libmongocxx libncurses) $(MongoDB_IFLAG)
 
-main.exe: Modal/card.o Service/studyService.o Service/config.o Controller/jobPool.o main.o UI/ui.o
+tests.exe: Modal/card.o Service/studyService.o Service/config.o Controller/jobPool.o main.o UI/ui.o
 	g++ -std=c++11 -g -o $@ $^ -Wall $(pkg-config --cflags --libs libmongocxx) -Wl,-rpath,/usr/local/lib $(NCURSES_LFLAG) $(MongoDB_LFLAG)
 
-ui-test.exe: Modal/card.o Service/studyService.o Service/config.o Controller/jobPool.o ui-demo.o UI/ui.o
+study.exe: Modal/card.o Service/studyService.o Service/config.o Controller/jobPool.o ui-demo.o UI/ui.o
 	g++ -std=c++11 -g -o $@ $^ -Wall $(pkg-config --cflags --libs libmongocxx) -Wl,-rpath,/usr/local/lib $(NCURSES_LFLAG) $(MongoDB_LFLAG)
 
 SUBDIR_ROOTS := Modal Service Controller UI

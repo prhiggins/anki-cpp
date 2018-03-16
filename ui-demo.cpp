@@ -17,6 +17,10 @@ int main() {
 		if (mode == 0) {
 			while(1) {
 				card* c = deck.get_next_card();
+				if (!c) {
+					break;
+				}
+
 				performance result = ui->present_card(c);
 
 				if (result == unf) {
@@ -27,7 +31,10 @@ int main() {
 			}
 		}
 		else if (mode == 1) {
-			// open create panel
+			string front = "";
+			string back = "";
+			ui->create_card(front, back);
+			deck.add_new_card(front, back);
 		}
 		else if (mode == 2) {
 			break;

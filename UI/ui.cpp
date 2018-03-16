@@ -12,16 +12,19 @@ UI::UI() {
 }
 
 performance UI::present_card(card* c) {
+	curs_set(0);
 	clear();
 	draw_skeleton();
 
 	const char* card_front =  c->front().c_str();
 	int text_start_line = LINES / 3;
-	int text_start_col = COLS / 2 - c->front().length();
+	int text_start_col = COLS / 2 - (c->front().length() / 2);
 	
 	draw_skeleton();
 	mvprintw(text_start_line, text_start_col, card_front);	
 	mvprintw(LINES - 2, (COLS / 2) - 5, "Flip: Space");
+	mvprintw(LINES - 3, (COLS / 2) - 7, "End Session: Q");
+	
 	refresh();
 	
 	bool waiting = true;
@@ -30,6 +33,9 @@ performance UI::present_card(card* c) {
 		if (input == ' ') {
 			waiting = false;
 		}
+		else if (input == 'q') {
+			return unf;
+		}
 	}
 
 	clear();	
@@ -37,41 +43,69 @@ performance UI::present_card(card* c) {
 	draw_skeleton();
 
 	const char* card_back = c->back().c_str();
-	mvprintw(text_start_line, COLS / 2 - c->back().length(), card_back);	
-	
-	mvprintw(LINES - 2, (COLS / 2) - 18, "1: Bad | 2: Hard | 3: Good | 4: Easy");
-	
+	mvprintw(text_start_line, COLS / 2 - (c->back().length() / 2), card_back);	
+	string options[4] = {"Bad","Hard","Good","Easy"};
+	//mvprintw(LINES - 2, (COLS / 2) - 18, "1: Bad | 2: Hard | 3: Good | 4: Easy");
 	refresh();
-
+	int selected = 0;
 	waiting = true;
 	performance perf = unf;
-	while (waiting) {
-		int input = getch();
-		if (input == '1') {
-			perf = bad;
-			waiting = false;
+	int input;
+	while (1) {
+		if (input == 10) {
+			break;
 		}
 
-		else if (input == '2') {
-			perf = hard;
-			waiting = false;
+		switch (input) {
+			case KEY_LEFT:
+				selected--;
+				break;
+			case KEY_RIGHT:
+				selected++;
+				break;
 		}
 
-		else if (input == '3') {
-			perf = easy;
-			waiting = false;
+		if (selected < 0) {
+			selected = 0;
 		}
+		
+		selected %= 4;
+		move(LINES - 2, (COLS / 2) - 12);
+		for (int i = 0; i < 4; i++) {
+			if (i == selected) {
+			attron(A_REVERSE);
+			}
 
-		else if (input == '4') {
-			perf = good;
-			waiting = false;
+			printw(options[i].c_str());
+			attroff(A_REVERSE);
+			if (i < 3) {
+				printw(" | ");
+			}
 		}
+		input = getch();
+	}
+	if (selected == 0) {
+		perf = bad;
+	}
+
+	else if (selected == 1) {
+		perf = hard;
+	}
+
+	else if (selected == 2) {
+		perf = easy;
+	}
+
+	else if (selected == 3) {
+		perf = good;
 	}
 
 	return perf;
 }
 
 int UI::present_menu() {
+	curs_set(0);
+	clear();
 	draw_skeleton();
 	string options[3] = {"Practice","Create","Exit"};
 	
@@ -108,6 +142,45 @@ int UI::present_menu() {
 		}
 	}
 	return selected;
+}
+void UI::create_card(string &front, string &back) {	
+	clear();
+	draw_skeleton();
+	mvprintw(LINES / 2, COLS / 2 - 11, "Front Side:");
+	curs_set(1);
+	refresh();
+
+	front = "";
+	back = "";
+	while (1) {
+		echo();
+		int c = getch();
+		if (c != 10) {
+			front += char(c);
+		}
+
+		else {
+			noecho();
+			break;
+		}
+	}
+	clear();
+	draw_skeleton();
+	mvprintw(LINES / 2, COLS / 2 - 10, "Back Side:");
+	refresh();
+
+	while (1) {
+		echo();
+		int c = getch();
+		if (c != 10) {
+			back += char(c);
+		}
+
+		else {
+			noecho();
+			break;
+		}
+	}
 }
 
 void UI::draw_skeleton() {

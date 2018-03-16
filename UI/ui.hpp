@@ -5,6 +5,7 @@ class UI {
 public:
 	UI();
 	int present_menu();
+	void create_card(string &front, string &back);
 	performance present_card(card* c);
 	~UI();
 private:
