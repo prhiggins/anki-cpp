@@ -6,6 +6,8 @@
 #define CARD_ANKI_MAIN_H
 #include <iostream>
 #include <vector>
+#include <stdlib.h>
+#include <time.h>   
 #include <mongocxx/instance.hpp>
 mongocxx::instance instance{};// don't put inside main 
 

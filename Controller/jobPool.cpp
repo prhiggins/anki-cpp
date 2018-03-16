@@ -150,6 +150,8 @@ void jobPool::update_card_list() {
     tm->tm_sec = 0;
     tm->tm_mday ++;
     end_of_today = mktime(tm);
+    new_card_list.clear();
+    review_card_list.clear();
     
     auto collection = db[id];
 
