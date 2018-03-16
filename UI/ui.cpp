@@ -152,35 +152,28 @@ void UI::create_card(string &front, string &back) {
 
 	front = "";
 	back = "";
-	while (1) {
-		echo();
-		int c = getch();
-		if (c != 10) {
-			front += char(c);
-		}
+	
+	char* front_in;
+	echo();
+	getstr(front_in);
+	noecho();
 
-		else {
-			noecho();
-			break;
-		}
-	}
+	front = string(front_in);
+
 	clear();
+
 	draw_skeleton();
 	mvprintw(LINES / 2, COLS / 2 - 10, "Back Side:");
 	refresh();
 
-	while (1) {
-		echo();
-		int c = getch();
-		if (c != 10) {
-			back += char(c);
-		}
+	char* back_in;
+	echo();
+	getstr(back_in);
+	noecho();
 
-		else {
-			noecho();
-			break;
-		}
-	}
+	back = string(back_in);
+
+	clear();
 }
 
 void UI::draw_skeleton() {
