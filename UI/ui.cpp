@@ -96,11 +96,11 @@ performance UI::present_card(card c) {
 	}
 
 	else if (selected == 2) {
-		perf = easy;
+		perf = good;
 	}
 
 	else if (selected == 3) {
-		perf = good;
+		perf = easy;
 	}
 
 	return perf;
