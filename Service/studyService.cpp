@@ -34,7 +34,7 @@ void studyService::learn_relearn(card &a_card, performance level, const vector<i
 
     if(a_card.learning_stage_ > size_of_learning_steps || level == bad) { 
             // Relearn a card or reset it due to the change of configs
-            cout << "First if statement"<< a_card.learning_stage_ << " "<< size_of_learning_steps <<"\n" ;
+            // cout << "First if statement"<< a_card.learning_stage_ << " "<< size_of_learning_steps <<"\n" ;
             a_card.learning_stage_ = 0;
             new_interval = learning_steps.at(a_card.learning_stage_);
             a_card.learning_stage_++;
@@ -42,14 +42,14 @@ void studyService::learn_relearn(card &a_card, performance level, const vector<i
                 a_card.ease_ = max((double)100, (a_card.ease() - 200));
     } else if(a_card.learning_stage_ == size_of_learning_steps) {
         // Relearning process is done, recover interval to max(1day, original_value * 0.5)
-        cout << "2nd if statement"<< a_card.learning_stage_ << " "<< size_of_learning_steps <<"\n" ;
+        // cout << "2nd if statement"<< a_card.learning_stage_ << " "<< size_of_learning_steps <<"\n" ;
         a_card.success_study_times_++;
         a_card.interval_ = max(86400.0, new_interval * 0.50);
         new_interval = a_card.interval_;
         a_card.learning_stage_++;
 
     } else {
-        cout << "Last if statement"<< a_card.learning_stage_ << " "<< size_of_learning_steps <<"\n" ;
+        // cout << "Last if statement"<< a_card.learning_stage_ << " "<< size_of_learning_steps <<"\n" ;
         // next interval in the (re)learning steps
         a_card.success_study_times_++;
         new_interval = learning_steps.at(a_card.learning_stage_);
