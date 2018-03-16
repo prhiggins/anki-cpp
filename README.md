@@ -13,6 +13,6 @@ once in the container:
 # cd root/anki-cpp
 # git pull
 # make clean
-# make
+# make all
 # ./study.exe
 ```
