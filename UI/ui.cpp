@@ -53,7 +53,7 @@ performance UI::present_card(card c) {
 	int selected = 0;
 	waiting = true;
 	performance perf = unf;
-	int input;
+	int input = ' ';
 	while (1) {
 		if (input == 10) {
 			break;
@@ -149,16 +149,16 @@ int UI::present_menu() {
 void UI::create_card(string &front, string &back) {	
 	clear();
 	draw_skeleton();
-	// mvprintw(LINES / 2, COLS / 2 - 11, "Front Side:");
+	mvprintw(LINES / 2, COLS / 2 - 11, "Front Side:");
 	curs_set(1);
 	
 
 	front = "";
 	back = "";
 	
-	char* front_in;
+	char* front_in = new char[256];
 	echo();
-	getstr(front_in);
+	getnstr(front_in, 256);
 	noecho();
 
 	front = string(front_in);
@@ -166,17 +166,20 @@ void UI::create_card(string &front, string &back) {
 	clear();
 
 	draw_skeleton();
-	// mvprintw(LINES / 2, COLS / 2 - 10, "Back Side:");
+	mvprintw(LINES / 2, COLS / 2 - 10, "Back Side:");
 	refresh();
 
-	char* back_in;
+	char* back_in = new char[256];
 	echo();
-	getstr(back_in);
+	getnstr(back_in, 256);
 	noecho();
 
 	back = string(back_in);
 
 	clear();
+
+	delete[] front_in;
+	delete[] back_in;
 
 }
 
