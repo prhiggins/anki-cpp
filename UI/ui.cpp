@@ -11,14 +11,17 @@ UI::UI() {
 	refresh();
 }
 
-performance UI::present_card(card* c) {
+performance UI::present_card(card c) {
 	curs_set(0);
 	clear();
 	draw_skeleton();
+	stringstream ss;
+	ss << c;
+	string front = c.front() + ss.str();
 
-	const char* card_front =  c->front().c_str();
+	const char* card_front =  front.c_str();
 	int text_start_line = LINES / 3;
-	int text_start_col = COLS / 2 - (c->front().length() / 2);
+	int text_start_col = COLS / 2 - (c.front().length() / 2);
 	
 	draw_skeleton();
 	mvprintw(text_start_line, text_start_col, card_front);	
@@ -42,8 +45,8 @@ performance UI::present_card(card* c) {
 
 	draw_skeleton();
 
-	const char* card_back = c->back().c_str();
-	mvprintw(text_start_line, COLS / 2 - (c->back().length() / 2), card_back);	
+	const char* card_back = c.back().c_str();
+	mvprintw(text_start_line, COLS / 2 - (c.back().length() / 2), card_back);	
 	string options[4] = {"Bad","Hard","Good","Easy"};
 	//mvprintw(LINES - 2, (COLS / 2) - 18, "1: Bad | 2: Hard | 3: Good | 4: Easy");
 	refresh();
@@ -146,9 +149,9 @@ int UI::present_menu() {
 void UI::create_card(string &front, string &back) {	
 	clear();
 	draw_skeleton();
-	mvprintw(LINES / 2, COLS / 2 - 11, "Front Side:");
+	// mvprintw(LINES / 2, COLS / 2 - 11, "Front Side:");
 	curs_set(1);
-	refresh();
+	
 
 	front = "";
 	back = "";
@@ -163,7 +166,7 @@ void UI::create_card(string &front, string &back) {
 	clear();
 
 	draw_skeleton();
-	mvprintw(LINES / 2, COLS / 2 - 10, "Back Side:");
+	// mvprintw(LINES / 2, COLS / 2 - 10, "Back Side:");
 	refresh();
 
 	char* back_in;
@@ -174,6 +177,7 @@ void UI::create_card(string &front, string &back) {
 	back = string(back_in);
 
 	clear();
+
 }
 
 void UI::draw_skeleton() {
