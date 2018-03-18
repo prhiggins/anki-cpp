@@ -29,7 +29,8 @@ bool Config::get_user_info(string &username, string &passwd) {
 
     string line;
     stringstream stre_name, stre_pass;
-    unsigned long tmp;
+    // unsigned long tmp;
+    string tmp;
     while(!file.eof()){
         getline(file, line, ':');
         if(line == "USERNAME") {

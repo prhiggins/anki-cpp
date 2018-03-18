@@ -52,8 +52,6 @@ bool jobPool::set_user_credentials_to(string username, string password) {
 void jobPool::change_to_another_user(string username, string password) {
     if(set_user_credentials_to(username, password)) {
         id = get_credential().at(0) + get_credential().at(1);
-        new_card_list.clear();
-        review_card_list.clear();
         learning_steps.clear();
         update_card_list();
         update_config();
@@ -76,7 +74,7 @@ void jobPool::update_config() {
 
         auto config = bsoncxx::builder::stream::document{} 
                 << "type" << "config"
-                << "last_studied@" << bsoncxx::types::b_int64{now} //////////////////
+                << "last_studied@" << bsoncxx::types::b_int64{now}
                 << "last_new" << 0
                 << "last_review" << 0
                 << "max_new" << 20
@@ -115,9 +113,11 @@ void jobPool::update_config() {
                 last_review = 0;
             } else {
                 if(last_new_ele && last_new_ele.type() == type::k_int32) {
+                    
                     last_new = last_new_ele.get_int32().value;
                 }
                 if(last_review_ele && last_review_ele.type() == type::k_int32) {
+                    
                     last_review = last_review_ele.get_int32().value;
                 }
             }
@@ -125,9 +125,11 @@ void jobPool::update_config() {
         }
 
         if(max_new_ele && max_new_ele.type() == type::k_int32) {
+            
             max_new = max_new_ele.get_int32().value;
         }
         if(max_review_ele && max_review_ele.type() == type::k_int32) {
+            
             max_review = max_review_ele.get_int32().value;
         }
         if(learning_steps_array_ele && learning_steps_array_ele.type() == type::k_array) {
@@ -142,14 +144,7 @@ void jobPool::update_config() {
 
 
 void jobPool::update_card_list() {
-    time_t end_of_today, now;
-    now = time(0);
-    tm* tm = localtime(&now);
-    tm->tm_hour = 0;
-    tm->tm_min = 0;
-    tm->tm_sec = 0;
-    tm->tm_mday ++;
-    end_of_today = mktime(tm);
+
     new_card_list.clear();
     review_card_list.clear();
     
@@ -167,26 +162,24 @@ void jobPool::update_card_list() {
         auto order_new = bsoncxx::builder::stream::document{} 
             << "created@" << 1 << bsoncxx::builder::stream::finalize;
         auto opts_new = mongocxx::options::find{};
-        opts_new.limit(max_new - last_new);
+        opts_new.limit(max(max_new - last_new, 0));
         opts_new.sort(order_new.view());
         auto cursor_new = collection.find(bsoncxx::builder::stream::document{}
                 << "type" << "card" 
-                << "learning_stage" << open_document
-                    << "$lte" << 0 << close_document
+                << "status" << "U"
                 << bsoncxx::builder::stream::finalize, opts_new);
         reload_cards_from_cursor(cursor_new, new_card_list);
         
         auto order_old = bsoncxx::builder::stream::document{} 
             << "due@" << 1 << bsoncxx::builder::stream::finalize;
         auto opts_old = mongocxx::options::find{};
-        opts_old.limit(max_review - last_review);
-        opts_old.sort(order_old.view()); // (learning_steps.size() + 1)
+        opts_old.limit(max(0, max_review - last_review));
+        opts_old.sort(order_old.view());
         auto cursor_old = collection.find(bsoncxx ::builder::stream::document{} 
                 << "type" << "card"
-                << "learning_stage" << open_document
-                    << "$gt" << 0 << close_document
+                << "status"  << open_document << "$ne" << "U" << close_document
                 << "due@" << open_document
-                    << "$lte" << bsoncxx::types::b_int64{end_of_today} << close_document //////////////////
+                    << "$lte" << bsoncxx::types::b_int64{time(0)} << close_document
                 << bsoncxx::builder::stream::finalize, opts_old);
         reload_cards_from_cursor(cursor_old, review_card_list);
 
@@ -213,20 +206,20 @@ void jobPool::add_new_card(string front, string back){
     time_t now = time(0);
     stringstream tmp;
     tmp << now;
+    string tmp_id = tmp.str();
     auto collection = db[id];
     auto new_record = 
         bsoncxx::builder::stream::document{}
                 << "type" << "card" 
+                << "created@" << bsoncxx::types::b_int64{now}
+                << "learning_stage" << bsoncxx::types::b_int32{0}
+                << "ease" << bsoncxx::types::b_double{1000.0}
                 << "front" << front
                 << "back" << back
-                << "created@" << bsoncxx::types::b_int64{now}
-                << "due@" << bsoncxx::types::b_int64{946684800}
-                << "ease" << 1000.0
-                << "learning_stage" << 0
-                << "total_study_times" << 0
-                << "success_study_times" << 0
-                << "interval" << -1.0
-                << "id" << front + back + tmp.str()
+                << "due@" << bsoncxx::types::b_int64{946684800} // init value 1/1/2000
+                << "interval" << bsoncxx::types::b_double{-1.0}
+                << "id" << tmp_id
+                << "status" << "U"
             << bsoncxx::builder::stream::finalize;
     collection.insert_one(new_record.view());
     update_card_list();
@@ -241,35 +234,28 @@ bool jobPool::delete_a_card(card &a_card){
         collection.delete_one(target_in_database->view());
         vector<card>::iterator card_in_new_list = find(new_card_list.begin(), new_card_list.end(), a_card);
         vector<card>::iterator card_in_review_list = find(review_card_list.begin(), review_card_list.end(), a_card);
-        
-        if(card_in_new_list != new_card_list.end()) 
-            update_card_list();
-        else if(card_in_review_list != review_card_list.end()) 
-            update_card_list();
         return true;
     }
     return false;
 }
 bool jobPool::modify_a_card(card &a_card) {
     if(!delete_a_card(a_card)) return false;
-
+    cout << "Modifying a card with id " << a_card.id() << endl;
     auto collection = db[id];
     auto new_record = 
-        bsoncxx::builder::stream::document{} 
+        bsoncxx::builder::stream::document{}
                 << "type" << "card" 
+                << "created@" << bsoncxx::types::b_int64{a_card.created_time()}
+                << "learning_stage" << bsoncxx::types::b_int32{a_card.learning_stage()}
+                << "ease" << bsoncxx::types::b_double{a_card.ease()}
                 << "front" << a_card.front()
                 << "back" << a_card.back()
-                << "created@" << bsoncxx::types::b_int64{a_card.created_time()}
                 << "due@" << bsoncxx::types::b_int64{a_card.due()}
-                << "ease" << a_card.ease()
-                << "learning_stage" << a_card.learning_stage()
-                << "total_study_times" << a_card.total_study_times()
-                << "success_study_times" << a_card.success_study_times()
-                << "interval" << a_card.interval()
+                << "interval" << bsoncxx::types::b_double{a_card.interval()}
                 << "id" << a_card.id()
+                << "status" << string(1, a_card.status())
             << bsoncxx::builder::stream::finalize;
     collection.insert_one(new_record.view());
-    update_card_list();
     return true;
 }
 
@@ -332,12 +318,15 @@ void jobPool::study(card &a_card, performance level) {
     
     if(card_in_new_list != new_card_list.end()) 
         last_new++;
+    
     else if(card_in_review_list != review_card_list.end()) 
         last_review++;
+    
 
     // update counter for cards learned
     auto collection = db[id];
     document filter_buff;
+
     filter_buff << "type" << "config";
     document update_buffer;
     update_buffer << "$set" << open_document 
@@ -347,6 +336,7 @@ void jobPool::study(card &a_card, performance level) {
     collection.update_one(filter_buff.view(), update_buffer.view());
 
     studyService::study(a_card, level, learning_steps);
+    cout << "Studying a card with id " << a_card.id() << endl;
     modify_a_card(a_card);
     update_card_list();
 }
@@ -361,60 +351,40 @@ void jobPool::reload_cards_from_cursor(mongocxx::cursor &src, vector<card> &targ
             bsoncxx::document::element due = doc["due@"];
             bsoncxx::document::element ease = doc["ease"];
             bsoncxx::document::element learning_stage = doc["learning_stage"];
-            bsoncxx::document::element total_study_times = doc["total_study_times"];
-            bsoncxx::document::element success_study_times = doc["success_study_times"];
+            bsoncxx::document::element status = doc["status"];
             bsoncxx::document::element interval = doc["interval"];
             bsoncxx::document::element id = doc["id"];
 
             string card_front, card_back, card_id;
-            long long card_created, card_due;
-            int card_learning_stage, card_total_study_times, card_success_study_times;
+            char card_status;
+            time_t card_created, card_due;
+            int card_learning_stage;
             double card_ease, card_interval;
             
-            if(front && front.type() == type::k_utf8) {
-                card_front = front.get_utf8().value.to_string();
-            }
-
-            if(back && back.type() == type::k_utf8) {
-                card_back = back.get_utf8().value.to_string();
-            }
-
-            if(created && created.type() == type::k_int64) {
-                card_created = created.get_int64().value;
-            } 
+       
+            card_front = front.get_utf8().value.to_string();
+    
+            card_back = back.get_utf8().value.to_string();
         
-            if(due && due.type() == type::k_int64) {
-                card_due = due.get_int64().value;
-            }
+            card_status = status.get_utf8().value.to_string()[0];
 
-            if(learning_stage && learning_stage.type() == type::k_int32) {
-                card_learning_stage = learning_stage.get_int32().value;
-            }
+            card_created = (time_t)created.get_int64().value;
 
-            if(total_study_times && total_study_times.type() == type::k_int32) {
-                card_total_study_times = total_study_times.get_int32().value;
-            }
+            card_due = (time_t)due.get_int64().value;
+ 
+            card_learning_stage = learning_stage.get_int32().value;
+        
+            card_ease = ease.get_double().value;
+        
+            card_interval = interval.get_double().value;
 
-            if(success_study_times && success_study_times.type() == type::k_int32) {
-                card_success_study_times = success_study_times.get_int32().value;
-            }
-
-            if(ease && ease.type() == type::k_double) {
-                card_ease = ease.get_double().value;
-            }
-
-            if(interval && interval.type() == type::k_double) {
-                card_interval = interval.get_double().value;
-            }
-
-            if(id && id.type() == type::k_utf8) {
-                card_id = id.get_utf8().value.to_string();
-            }
+            card_id = id.get_utf8().value.to_string();
+            
             card tmp(
-                    time_t(card_created), card_success_study_times,
-                    card_total_study_times, card_learning_stage,
+                    card_created, card_learning_stage,
                     card_ease, card_front, card_back,
-                    card_due, card_interval, card_id
+                    card_due, card_interval, card_id,
+                    card_status
                 );
             // cout << tmp;
             target.push_back(tmp);

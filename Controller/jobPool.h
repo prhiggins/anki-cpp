@@ -10,6 +10,7 @@
 #include <vector>
 #include <ctime>
 #include <string>
+#include <algorithm>
 #include <sstream>
 
 #include <bsoncxx/builder/stream/document.hpp>
@@ -64,8 +65,11 @@ private:
     bool modify_a_card(card &a_card);
     void reload_cards_from_cursor(mongocxx::cursor &src, vector<card> &target);
     string id;
+
+    // hard-coded database setting
     mongocxx::client conn{mongocxx::uri{"mongodb://bot:53744D9E-0C0B-4298-851A-AEB56ECE58F7@ds139984.mlab.com:39984/cis330"}};
     mongocxx::database db = conn["cis330"];
+
     vector<card> new_card_list, review_card_list;
     vector<int> learning_steps;
     int max_new, last_new, max_review, last_review;

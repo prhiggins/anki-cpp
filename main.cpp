@@ -16,6 +16,8 @@ int main() {
     }
     jobPool test_controller(jobPool::get_credential().at(0),  jobPool::get_credential().at(1));
     
+    sleep(1);
+
     // test jobPool
     cout << "Logined!" << endl;
     cout << test_controller;
@@ -36,6 +38,8 @@ int main() {
 
     cout << test_controller;
 
+    sleep(1);
+
     // test adding new card
     cout << "Testing adding cards:\n";
     cout << "Enter the front: ";
@@ -47,6 +51,8 @@ int main() {
     cout << "Added" << endl;
     cout << test_controller;
 
+    sleep(1);
+
     // test looking up that card
     cout << "Testing looking up the card just added:";
     vector<card> target = test_controller.look_up_cards(front, back);
@@ -56,6 +62,8 @@ int main() {
             cout << *it << endl;
     }
 
+    sleep(1);
+
     // test get the next card
     cout << "Testing getting the next card:\n";
     card* top_card = test_controller.get_next_card();
@@ -64,11 +72,13 @@ int main() {
         cout << "The top card is:" << *top_card;
     }
 
+    sleep(1);
+
     // test study a card
     cout << "Testing studying cards:\n";
     srand(time(0));
     while(top_card != nullptr) {
-        int rngs = rand() % 4 + 1;
+        int rngs = rand() % 4;
         cout << "Performance is[1:bad; 2:hard; 3:good; 4:easy] " << rngs << endl;
         test_controller.study(*top_card, (performance)rngs);
         cout << "Studied!\n";
@@ -76,6 +86,8 @@ int main() {
         top_card = test_controller.get_next_card();
     }
 
+    sleep(1);
+    
     // test change the user
     // When next time you run the program
     // The user will be "New testing username"
